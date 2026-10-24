@@ -1,4 +1,4 @@
-# rag_elixir
+# Build your first RAG in Elixir
 
 A retrieval-augmented generation (RAG) app in Elixir, small enough to read in
 an afternoon. Documents are chunked, embedded with Gemini and stored in
