@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Ember &amp; Scale Dragon Hire</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --night: #120c0a;
+    --ash: #1d1411;
+    --ink: #f3e7da;
+    --muted: #b49d8b;
+    --line: rgba(232, 176, 102, .22);
+    --gold: #e8b066;
+    --ember: #ff7a2f;
+    --flame: #d9381e;
+    --parchment: #f1e2c6;
+    --parchment-ink: #2b1d14;
+    --parchment-line: #d8c09a;
+    --seal: #9e2a1a;
+    --display: "Cinzel", "Iowan Old Style", Georgia, serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    color: var(--ink);
+    font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--night);
+    background-image:
+      radial-gradient(ellipse 90% 45% at 50% 115%, rgba(255, 96, 24, .32), transparent 70%),
+      radial-gradient(circle at 50% 100%, transparent 56%, rgba(232, 176, 102, .07) 58%, transparent 63%),
+      radial-gradient(circle at 50% 100%, transparent 56%, rgba(232, 176, 102, .07) 58%, transparent 63%);
+    background-size: 100% 100%, 34px 24px, 34px 24px;
+    background-position: 0 0, 0 0, 17px 12px;
+    background-attachment: fixed;
+    overflow: hidden;
+  }
+
+  .embers { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
+  .embers i {
+    position: absolute; bottom: -10px; width: 4px; height: 4px; border-radius: 50%;
+    background: var(--ember); box-shadow: 0 0 8px 2px rgba(255, 122, 47, .7);
+    animation: rise linear infinite; opacity: 0;
+  }
+  @keyframes rise {
+    0% { transform: translate(0, 0); opacity: 0; }
+    10% { opacity: .9; }
+    100% { transform: translate(var(--drift), -105vh); opacity: 0; }
+  }
+
+  header, main, footer { position: relative; z-index: 1; }
+  header {
+    border-bottom: 1px solid var(--line);
+    background: linear-gradient(rgba(18, 12, 10, .92), rgba(18, 12, 10, .75));
+    backdrop-filter: blur(6px);
+  }
+  .bar {
+    max-width: 780px; margin: 0 auto; padding: 12px 16px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .crest {
+    width: 42px; height: 42px; border-radius: 50%; flex: none;
+    display: grid; place-items: center; font-size: 22px;
+    background: radial-gradient(circle at 50% 35%, #5a2414, #240f0a);
+    border: 1px solid var(--gold);
+    box-shadow: 0 0 14px rgba(255, 122, 47, .35);
+  }
+  .title { flex: 1; min-width: 0; }
+  .title strong {
+    display: block; font-family: var(--display); font-size: 17px; letter-spacing: .04em;
+    color: var(--gold);
+  }
+  .title span { color: var(--muted); font-size: 13px; }
+
+  main { flex: 1; overflow-y: auto; }
+  .thread { max-width: 780px; margin: 0 auto; padding: 24px 16px 8px; }
+
+  .welcome { text-align: center; padding: 34px 0 8px; }
+  .hero {
+    width: 112px; height: 112px; margin: 0 auto 18px; border-radius: 50%;
+    display: grid; place-items: center; font-size: 62px;
+    background: radial-gradient(circle at 50% 40%, rgba(255, 122, 47, .35), rgba(120, 30, 10, .15) 60%, transparent 70%);
+    border: 1px solid var(--line);
+    animation: breathe 4s ease-in-out infinite;
+  }
+  @keyframes breathe { 50% { box-shadow: 0 0 40px rgba(255, 110, 30, .45); } }
+  .welcome h1 {
+    font-family: var(--display); font-size: 28px; margin: 0 0 8px; letter-spacing: .03em;
+    color: var(--gold); text-shadow: 0 0 18px rgba(255, 122, 47, .35);
+  }
+  .welcome p { color: var(--muted); margin: 0 auto 24px; max-width: 460px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+  .chip {
+    border: 1px solid var(--line); background: rgba(40, 24, 18, .75); color: var(--ink);
+    border-radius: 10px; padding: 9px 14px; cursor: pointer; font: inherit; font-size: 14px;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .chip:hover { border-color: var(--gold); box-shadow: 0 0 12px rgba(232, 176, 102, .25); }
+
+  .msg { display: flex; margin: 16px 0; gap: 10px; align-items: flex-end; }
+  .msg.user { justify-content: flex-end; }
+  .msg.bot::before {
+    content: "🐉"; flex: none; width: 30px; height: 30px; border-radius: 50%;
+    display: grid; place-items: center; font-size: 16px;
+    background: #2a1510; border: 1px solid var(--line);
+  }
+  .bubble { max-width: 85%; padding: 12px 16px; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .user .bubble {
+    background: linear-gradient(135deg, #e0561f, #a8261a); color: #fff5ec;
+    border-radius: 16px 16px 4px 16px; box-shadow: 0 4px 18px rgba(217, 56, 30, .3);
+  }
+  .bot .bubble {
+    background: var(--parchment); color: var(--parchment-ink);
+    border: 1px solid var(--parchment-line); border-radius: 4px 16px 16px 16px;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, .35), inset 0 0 30px rgba(160, 110, 50, .18);
+  }
+  .bot .bubble.error { color: var(--seal); }
+
+  .cite {
+    display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 5px;
+    margin: 0 1px; border-radius: 50%; border: 0; background: var(--seal); color: #fbe9d6;
+    font: 700 11px/1 system-ui, sans-serif; cursor: pointer; vertical-align: 1px;
+  }
+  .cite:hover, .cite[aria-expanded="true"] { background: var(--flame); box-shadow: 0 0 8px rgba(217, 56, 30, .6); }
+
+  .asked { margin-bottom: 6px; color: #7d6450; font-size: 13px; font-style: italic; white-space: normal; }
+  .meta { margin-top: 10px; border-top: 1px dashed var(--parchment-line); padding-top: 10px; white-space: normal; }
+  .cited { display: flex; flex-wrap: wrap; gap: 6px; }
+  .cited button {
+    border: 1px solid var(--parchment-line); background: rgba(255, 255, 255, .35); color: #6b5240;
+    border-radius: 8px; padding: 3px 8px; font: 12px/1.4 system-ui, sans-serif; cursor: pointer;
+  }
+  .cited button b { color: var(--seal); margin-right: 4px; }
+  .cited button[aria-expanded="true"] { border-color: var(--seal); color: var(--parchment-ink); }
+  .passage {
+    margin-top: 8px; border-left: 3px solid var(--seal); background: rgba(158, 42, 26, .08);
+    border-radius: 0 10px 10px 0; padding: 8px 12px; font-size: 14px; white-space: pre-wrap;
+    font-family: "Iowan Old Style", Georgia, serif;
+  }
+  .all { margin-top: 10px; }
+  .all summary { color: #7d6450; font-size: 13px; cursor: pointer; }
+  .src {
+    margin-top: 8px; border: 1px solid var(--parchment-line); border-radius: 10px; padding: 8px 10px;
+    font-size: 14px; background: rgba(255, 255, 255, .25);
+  }
+  .src-head { display: flex; gap: 8px; align-items: baseline; color: #7d6450; font-size: 12px; }
+  .src-head b { color: var(--parchment-ink); font-size: 13px; }
+  .src-text { margin-top: 4px; white-space: pre-wrap; font-family: "Iowan Old Style", Georgia, serif; }
+
+  .typing { display: inline-flex; align-items: center; gap: 8px; color: #7d6450; font-size: 14px; font-style: italic; }
+  .dots { display: inline-flex; gap: 4px; }
+  .dots i {
+    width: 7px; height: 7px; border-radius: 50%; background: var(--flame); opacity: .35;
+    animation: flicker 1.2s infinite;
+  }
+  .dots i:nth-child(2) { animation-delay: .2s; }
+  .dots i:nth-child(3) { animation-delay: .4s; }
+  @keyframes flicker { 50% { opacity: 1; box-shadow: 0 0 6px var(--ember); } }
+
+  footer { padding-top: 6px; }
+  form {
+    max-width: 780px; margin: 0 auto; padding: 8px 16px 16px;
+    display: flex; gap: 8px; align-items: flex-end;
+  }
+  textarea {
+    flex: 1; resize: none; max-height: 160px; min-height: 50px;
+    border: 1px solid var(--line); border-radius: 14px; padding: 13px 15px;
+    background: rgba(29, 20, 17, .92); color: var(--ink); font: inherit;
+  }
+  textarea::placeholder { color: #8d7767; }
+  textarea:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(232, 176, 102, .18); }
+  button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+  .send {
+    width: 50px; height: 50px; flex: none; border: 0; border-radius: 14px; cursor: pointer;
+    background: linear-gradient(135deg, #ff7a2f, #c42d1a); color: #fff5ec;
+    display: grid; place-items: center; box-shadow: 0 0 18px rgba(255, 110, 30, .35);
+  }
+  .send:disabled { opacity: .45; cursor: default; box-shadow: none; }
+  .hint { max-width: 780px; margin: -8px auto 0; padding: 0 16px 12px; color: #8d7767; font-size: 12px; }
+
+  @media (max-width: 520px) {
+    .title span { display: none; }
+    .bubble { max-width: 88%; }
+    .welcome h1 { font-size: 23px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .embers { display: none; }
+    .hero, .dots i { animation: none; }
+    .dots i { opacity: .8; }
+  }
+</style>
+</head>
+<body>
+<div class="embers" id="embers" aria-hidden="true"></div>
+
+<header>
+  <div class="bar">
+    <div class="crest" aria-hidden="true">🐉</div>
+    <div class="title">
+      <strong>Ember &amp; Scale Dragon Hire</strong>
+      <span>Ask the keeper. She knows every dragon by name.</span>
+    </div>
+  </div>
+</header>
+
+<main id="scroller">
+  <div class="thread" id="thread">
+    <section class="welcome" id="welcome">
+      <div class="hero" aria-hidden="true">🐉</div>
+      <h1>Where would you like to fly?</h1>
+      <p>Ask the keeper about our dragons, prices, Fire Cover, or the rules of the sky.</p>
+      <div class="chips">
+        <button class="chip" type="button">Who are you?</button>
+        <button class="chip" type="button">Which dragon is best for a beginner?</button>
+        <button class="chip" type="button">My dragon set a shed on fire. Am I covered?</button>
+        <button class="chip" type="button">Can I buy a dragon?</button>
+        <button class="chip" type="button">Which dragon should I take to propose?</button>
+        <button class="chip" type="button">A dragon stole my keys!</button>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer>
+  <form id="form">
+    <textarea id="input" rows="1" placeholder="Ask the keeper…" aria-label="Your question" maxlength="500"></textarea>
+    <button class="send" id="send" type="submit" aria-label="Send">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c4 0 7-2.7 7-6.8 0-3.6-2.4-6.1-4.2-8.2-.4 1.9-1.4 3.2-2.8 3.8.3-3.1-.9-6.1-3.5-8.8-.2 3.6-1.6 5.5-3.1 7.3C4.2 11.3 5 13 5 15.2 5 19.3 8 22 12 22z"/></svg>
+    </button>
+  </form>
+  <div class="hint">Enter to send · Shift+Enter for a new line</div>
+</footer>
+
+<script>
+  const thread = document.getElementById("thread");
+  const scroller = document.getElementById("scroller");
+  const form = document.getElementById("form");
+  const input = document.getElementById("input");
+  const send = document.getElementById("send");
+  const history = [];
+  let busy = false;
+
+  document.querySelectorAll(".chip").forEach((chip) => {
+    chip.addEventListener("click", () => ask(chip.textContent));
+  });
+
+  input.addEventListener("input", resize);
+  input.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" && !event.shiftKey && !event.isComposing) {
+      event.preventDefault();
+      form.requestSubmit();
+    }
+  });
+
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    ask(input.value);
+  });
+
+  function resize() {
+    input.style.height = "auto";
+    input.style.height = Math.min(input.scrollHeight, 160) + "px";
+  }
+
+  function el(tag, className, text) {
+    const node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text !== undefined) node.textContent = text;
+    return node;
+  }
+
+  function addMessage(role) {
+    document.getElementById("welcome")?.remove();
+    const row = el("div", "msg " + role);
+    const bubble = el("div", "bubble");
+    row.append(bubble);
+    thread.append(row);
+    scroller.scrollTop = scroller.scrollHeight;
+    return bubble;
+  }
+
+  async function ask(text) {
+    const question = text.trim();
+    if (!question || busy) return;
+
+    busy = true;
+    send.disabled = true;
+    input.value = "";
+    resize();
+
+    addMessage("user").textContent = question;
+    const bubble = addMessage("bot");
+    const typing = el("span", "typing");
+    const dots = el("span", "dots");
+    dots.append(el("i"), el("i"), el("i"));
+    typing.append(dots, document.createTextNode("The dragon-keeper is checking the scrolls…"));
+    bubble.append(typing);
+
+    try {
+      const response = await fetch("/api/ask", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ question, history: history.slice(-6) })
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Something went wrong.");
+      renderAnswer(bubble, data, question);
+      history.push({ role: "user", text: question }, { role: "assistant", text: data.answer });
+    } catch (error) {
+      bubble.textContent = error.message === "Failed to fetch"
+        ? "Couldn't reach the server. Is mix rag.server still running?"
+        : error.message;
+      bubble.classList.add("error");
+    } finally {
+      busy = false;
+      send.disabled = false;
+      input.focus();
+      scroller.scrollTop = scroller.scrollHeight;
+    }
+  }
+
+  function renderAnswer(bubble, { answer, question, sources }, typed) {
+    bubble.textContent = "";
+    if (question && question !== typed) bubble.append(el("div", "asked", "Asked as: " + question));
+    const body = el("div");
+    const cited = [];
+    const citeButtons = [];
+
+    answer.split(/(\[\d+\])/).forEach((part) => {
+      const match = part.match(/^\[(\d+)\]$/);
+      const n = match && Number(match[1]);
+      if (!n || !sources[n - 1]) {
+        body.append(document.createTextNode(part));
+        return;
+      }
+      if (!cited.includes(n)) cited.push(n);
+      const cite = el("button", "cite", String(n));
+      cite.type = "button";
+      cite.dataset.n = n;
+      cite.title = sources[n - 1].source;
+      citeButtons.push(cite);
+      body.append(cite);
+    });
+    bubble.append(body);
+    if (!cited.length) return;
+
+    const meta = el("div", "meta");
+    const passage = el("div", "passage");
+    passage.hidden = true;
+
+    const chips = el("div", "cited");
+    cited.forEach((n) => {
+      const chip = el("button");
+      chip.type = "button";
+      chip.dataset.n = n;
+      chip.append(el("b", "", "[" + n + "]"), document.createTextNode(sources[n - 1].source));
+      citeButtons.push(chip);
+      chips.append(chip);
+    });
+    meta.append(chips, passage);
+
+    citeButtons.forEach((button) => {
+      button.setAttribute("aria-expanded", "false");
+      button.addEventListener("click", () => {
+        const n = button.dataset.n;
+        const open = passage.hidden || passage.dataset.n !== n;
+        passage.hidden = !open;
+        passage.dataset.n = n;
+        passage.textContent = open ? tidy(sources[n - 1]) : "";
+        citeButtons.forEach((b) => b.setAttribute("aria-expanded", String(open && b.dataset.n === n)));
+        if (open) passage.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      });
+    });
+
+    const all = el("details", "all");
+    all.append(el("summary", "", "All " + sources.length + " retrieved passages"));
+    sources.forEach((source, i) => all.append(sourceCard(source, i + 1)));
+    meta.append(all);
+    bubble.append(meta);
+  }
+
+  function tidy(source) {
+    const text = source.content
+      .replace(/^#+\s*/gm, "")
+      .replace(/([^\n])\n(?!\n)/g, "$1 ")
+      .trim();
+    return source.chunk_index > 0 ? "…" + text : text;
+  }
+
+  function sourceCard(source, n) {
+    const card = el("div", "src");
+    const head = el("div", "src-head");
+    head.append(el("b", "", "[" + n + "] " + source.source + " #" + source.chunk_index));
+    head.append(el("span", "", "distance " + source.distance.toFixed(3)));
+    card.append(head, el("div", "src-text", tidy(source)));
+    return card;
+  }
+
+  const embers = document.getElementById("embers");
+  for (let i = 0; i < 18; i++) {
+    const ember = el("i");
+    ember.style.left = Math.random() * 100 + "%";
+    ember.style.animationDuration = 7 + Math.random() * 9 + "s";
+    ember.style.animationDelay = -Math.random() * 16 + "s";
+    ember.style.setProperty("--drift", (Math.random() * 120 - 60).toFixed(0) + "px");
+    const size = 2 + Math.random() * 3;
+    ember.style.width = ember.style.height = size.toFixed(1) + "px";
+    embers.append(ember);
+  }
+
+  input.focus();
+</script>
+</body>
+</html>
